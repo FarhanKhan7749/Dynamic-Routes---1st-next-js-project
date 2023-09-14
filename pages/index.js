@@ -1,29 +1,6 @@
-import Layout from '../components/layout/Layout';
+import { MongoClient } from "mongodb";
 import MeetupList from "../components/meetups/MeetupList";
 
-const DUMMY_MEETUP = [
-    {
-        id: "M1",
-        title: 'A first Meetup',
-        image: "https://img.freepik.com/free-photo/mumbai-skyline-seen-from-marine-drive-south-mumbai_469504-11.jpg?size=626&ext=jpg&ga=GA1.1.1750076145.1694275553&semt=ais",
-        address: 'Some address 5, 12345 some city',
-        description: "This is first meetup",
-    },
-    {
-        id: "M1",
-        title: 'A first Meetup',
-        image: "https://img.freepik.com/free-photo/mumbai-skyline-seen-from-marine-drive-south-mumbai_469504-11.jpg?size=626&ext=jpg&ga=GA1.1.1750076145.1694275553&semt=ais",
-        address: 'Some address 5, 12345 some city',
-        description: "This is first meetup",
-    },
-    {
-        id: "M1",
-        title: 'A first Meetup',
-        image: "https://img.freepik.com/free-photo/mumbai-skyline-seen-from-marine-drive-south-mumbai_469504-11.jpg?size=626&ext=jpg&ga=GA1.1.1750076145.1694275553&semt=ais",
-        address: 'Some address 5, 12345 some city',
-        description: "This is first meetup",
-    },
-]
 
 function HomePage(props) {
     return <MeetupList meetups={props.meetup}></MeetupList>
@@ -31,9 +8,23 @@ function HomePage(props) {
 }
 
 export async function getStaticProps(){
+
+    const clinet = await MongoClient.connect('mongodb+srv://Farhan:bH5ot0llCUyOuCvB@cluster0.euraxek.mongodb.net/meetup?retryWrites=true&w=majority');
+    const db = clinet.db();
+
+    const meetupsCollections = db.collection('meetup');
+
+    const meetup = await meetupsCollections.find().toArray();
+
+
     return {
         props : {
-            meetup : DUMMY_MEETUP,
+            meetup : meetup.map(meetup => ({
+                title:meetup.title,
+                address:meetup.address,
+                image:meetup.image,
+                id:meetup._id.toString(),
+            }))
         },
         revalidate:1
     }
